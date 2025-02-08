@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Genz ChatBot</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <form method = "POST" action="/">
+        <textarea type="text" name="message" placeholder="Let's Gossip!"></textarea>
+        <button type="submit">Yeet</button>
+    </form>
+    {% if user_message and bot_reply %}
+    <div class="chat-log">
+        <p><strong>You:</strong>{{user_message}}</p>
+        <p><strong>Bot:</strong>{{bot_reply}}</p>
+    </div>
+    {% endif %}
+</body>
+</html>
