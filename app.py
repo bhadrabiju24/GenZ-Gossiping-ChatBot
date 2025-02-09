@@ -40,42 +40,77 @@
 #     debug = True
 #     app.run(debug=debug)
 
-from flask import Flask, request, render_template
+# from flask import Flask, request, render_template
+# import os
+# from dotenv import load_dotenv
+# from google import genai
+
+
+# load_dotenv()
+
+# app = Flask(__name__)
+
+
+# gemini_api_key = os.getenv('GEMINI_API_KEY')
+
+
+# client = genai.Client(api_key=gemini_api_key)
+
+# @app.route('/', methods=["POST", "GET"])
+# def home():
+#     if request.method == "POST":
+#         user_message = request.form["message"]
+        
+#         try:
+ 
+#             response = client.models.generate_content(
+#                 model='gemini-2.0-flash',
+#                 contents = f"without bolding the text , Talk to me in Gen Z slang and gossip about celebrities: {user_message} and also ask me a question based on my input and also make the conversation short"
+#             )
+#             bot_reply = response.text
+
+#         except Exception as e:
+#             print(f"Error: {e}")
+#             bot_reply = "Oops! Something went wrong. Try again later."
+        
+#         return render_template('index.html', user_message=user_message, bot_reply=bot_reply)
+    
+#     return render_template('index.html')
+
+# if __name__ == '__main__':
+#     app.run(debug=True)
+from flask import Flask, request, jsonify, render_template
 import os
 from dotenv import load_dotenv
 from google import genai
-
 
 load_dotenv()
 
 app = Flask(__name__)
 
-
 gemini_api_key = os.getenv('GEMINI_API_KEY')
-
-
 client = genai.Client(api_key=gemini_api_key)
 
-@app.route('/', methods=["POST", "GET"])
+@app.route('/', methods=["GET"])
 def home():
-    if request.method == "POST":
-        user_message = request.form["message"]
-        
-        try:
- 
-            response = client.models.generate_content(
-                model='gemini-2.0-flash',
-                contents = f"wihtout bolding the text , Talk to me in Gen Z slang and gossip about celebrities: {user_message}"
-            )
-            bot_reply = response.text
-
-        except Exception as e:
-            print(f"Error: {e}")
-            bot_reply = "Oops! Something went wrong. Try again later."
-        
-        return render_template('index.html', user_message=user_message, bot_reply=bot_reply)
-    
     return render_template('index.html')
+
+@app.route('/chat', methods=["POST"])
+def chat():
+    user_message = request.json.get("message", "")
+    if not user_message:
+        return jsonify({"error": "No message provided"}), 400
+
+    try:
+        response = client.models.generate_content(
+            model='gemini-2.0-flash',
+            contents=f"without bolding the text, Talk to me in Gen Z slang and gossip about celebrities: {user_message} and also ask me a question based on my input and also make the conversation short"
+        )
+        bot_reply = response.text
+        return jsonify({"user_message": user_message, "bot_reply": bot_reply})
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({"error": "Oops! Something went wrong. Try again later."}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
